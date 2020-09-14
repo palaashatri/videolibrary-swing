@@ -1,0 +1,58 @@
+drop database palaash;
+create database palaash;
+use palaash;
+
+create table vcd_record(
+vcd_id char(4) primary key,
+vcd_title varchar(100) not null,
+vcd_genre varchar(30) not null,
+vcd_rating varchar(4),
+vcd_price_in_rupees int (5),
+NO_OF_UNITS_AVAILABLE INT(2));
+
+create table customer_record(
+cust_id char(4) primary key,
+cust_name varchar(30) not null,
+cust_ph_no varchar(10) not null,
+cust_address varchar(100));
+
+create table transactionrcvd(
+order_id int(4) primary key,
+vcd_id char(4) not null,
+vcd_title varchar(100) not null,
+cust_id char(4) not null,
+cust_name varchar(30) not null,
+date_of_issue date,
+date_of_return date,
+date_returned_on date
+);
+
+desc vcd_record;
+desc customer_record;
+desc transactionrcvd;
+
+
+insert into vcd_record values
+(0001,"The Avengers","Action","U/A",250,2),
+(0002,"Avengers: Age of Ultron","Action","U/A",250,3),
+(0003,"The Dark Knight","Action","U/A",180,2),
+(0004,"The Incredibles","Animation","U",70,6),
+(0005,"Monsters Inc.","Animation","U",180,15),
+(0006,"2001: A Space Odyssey","Science Fiction","U/A",200,12),
+(0007,"Prometheus","Science Fiction","A",92,1);
+
+select * from vcd_record;
+
+insert into customer_record values
+(0001,"Palaash Atri","1234567890","Address, Township, City"),
+(0002,"John Doe","1234567890","Address, Township, City"),
+(0003,"Jane Doe","1234567890","Address, Township, City"),
+(0004,"Dane Joe","1234567890","Address, Township, City");
+
+select * from customer_record;
+
+
+insert into transactionrcvd values
+(0001,0001,"The Avengers",0001,"Palaash Atri",20160622,20160624,20160625);
+
+select * from transactionrcvd;
