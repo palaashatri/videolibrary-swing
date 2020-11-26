@@ -44,10 +44,10 @@ insert into vcd_record values
 select * from vcd_record;
 
 insert into customer_record values
-(0001,"Palaash Atri","1234567890","Address, Township, City"),
-(0002,"John Doe","1234567890","Address, Township, City"),
-(0003,"Jane Doe","1234567890","Address, Township, City"),
-(0004,"Dane Joe","1234567890","Address, Township, City");
+(0001,"Palaash Atri","1234567890","Address", "Township", "City"),
+(0002,"John Doe","1234567890","Address", "Township", "City"),
+(0003,"Jane Doe","1234567890","Address", "Township", "City"),
+(0004,"Dane Joe","1234567890","Address", "Township", "City");
 
 select * from customer_record;
 
