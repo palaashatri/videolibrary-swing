@@ -96,6 +96,19 @@
             "problemMatcher": "$javac"
         },
         {
+            "label": "Prepare + Seed Database",
+            "type": "shell",
+            "command": "sh",
+            "args": [
+                "-c",
+                "mvn -DskipTests compile dependency:copy-dependencies -DincludeScope=runtime && docker-compose up -d && sleep 3 && bash seed.sh"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
             "label": "Run Standalone JAR",
             "type": "shell",
             "command": "java",

@@ -8,8 +8,7 @@
             "mainClass": "Forms.Intro_GUI",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
-            "preLaunchTask": "Docker: Start MySQL",
-            "preLaunchTaskWithWait": false
+            "preLaunchTask": "Prepare + Seed Database"
         },
         {
             "type": "java",
