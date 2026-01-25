@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <mysql.version>8.0.33</mysql.version>
+        <mysql.version>8.2.0</mysql.version>
         <mariadb.version>3.3.3</mariadb.version>
         <postgresql.version>42.7.2</postgresql.version>
         <flatlaf.version>3.2.5</flatlaf.version>
