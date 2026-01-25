@@ -11,6 +11,8 @@ package Forms;
 import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.DefaultListModel;
+import utils.DatabaseConnection;
+import utils.InputValidator;
 
 /**
  *
@@ -159,70 +161,86 @@ public class View_Transactions_GUI extends javax.swing.JFrame {
         DefaultListModel dlm;
         dlm = (DefaultListModel)jList1.getModel();
         dlm.clear();
-     try
-     {
-      Class.forName("java.sql.Driver");
-      Connection con=DriverManager.getConnection("jdbc:mysql://localhost/palaash","root","");
-      Statement stmt=con.createStatement();
-      String sql="Select order_id from transactionrcvd;";
-      ResultSet rs=stmt.executeQuery(sql);
-      while(rs.next())
-      {
-          dlm.addElement(rs.getString("order_id"));
-      }
-     }
-     catch(Exception e)
-     {
-         JOptionPane.showMessageDialog(this, e.getMessage());
-     }
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            con = DatabaseConnection.getConnection();
+            String sql = "SELECT order_id FROM transactionrcvd";
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            while(rs.next()) {
+                dlm.addElement(rs.getString("order_id"));
+            }
+        } catch(SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error while loading transactions: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt, rs);
+        }
     }//GEN-LAST:event_formFocusGained
 
     private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
-         String SQL = "SELECT * FROM transactionrcvd;";
+        String order_id = (String) jList1.getSelectedValue();
+        
+        if (order_id == null || order_id.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please select a valid transaction.", "Input Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
         try {
-            Class.forName("java.sql.Driver");
-            Connection con = (Connection)
-                    DriverManager.getConnection("jdbc:mysql://localhost:3306/palaash","root","");
-            Statement stmt=con.createStatement();
-            String order_id = (String) jList1.getSelectedValue();
-            String SQL1 = "SELECT * FROM transactionrcvd where order_id = '"+(order_id)+"';";
-            ResultSet rs = stmt.executeQuery(SQL1);
+            con = DatabaseConnection.getConnection();
+            String sql = "SELECT * FROM transactionrcvd WHERE order_id = ?";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, order_id);
+            rs = pstmt.executeQuery();
 
-            while (rs.next()) {
+            if (rs.next()) {
                 jTextField1.setText(rs.getString("vcd_id"));
                 jTextField2.setText(rs.getString("vcd_title"));
                 jTextField3.setText(rs.getString("cust_id"));
                 jTextField4.setText(rs.getString("cust_name"));
                 jTextField6.setText(rs.getString("date_of_issue"));
                 jTextField7.setText(rs.getString("date_of_return"));
+            } else {
+                JOptionPane.showMessageDialog(this, "Transaction not found.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        }
-        catch (Exception e)
-        {
-            JOptionPane.showMessageDialog(this,e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error while loading transaction details: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt, rs);
         }
     }//GEN-LAST:event_jList1MouseClicked
 
     private void jList1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jList1FocusGained
-          DefaultListModel dlm;
+        DefaultListModel dlm;
         dlm = (DefaultListModel)jList1.getModel();
         dlm.clear();
-     try
-     {
-      Class.forName("java.sql.Driver");
-      Connection con=DriverManager.getConnection("jdbc:mysql://localhost/palaash","root","");
-      Statement stmt=con.createStatement();
-      String sql="Select order_id from transactionrcvd;";
-      ResultSet rs=stmt.executeQuery(sql);
-      while(rs.next())
-      {
-          dlm.addElement(rs.getString("order_id"));
-      }
-     }
-     catch(Exception e)
-     {
-         JOptionPane.showMessageDialog(this, e.getMessage());
-     }
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            con = DatabaseConnection.getConnection();
+            String sql = "SELECT order_id FROM transactionrcvd";
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            while(rs.next()) {
+                dlm.addElement(rs.getString("order_id"));
+            }
+        } catch(SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error while loading transactions: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt, rs);
+        }
     }//GEN-LAST:event_jList1FocusGained
 
     /**

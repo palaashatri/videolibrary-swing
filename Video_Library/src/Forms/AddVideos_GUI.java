@@ -8,10 +8,11 @@ package Forms;
 
 
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import javax.swing.JOptionPane;
+import utils.DatabaseConnection;
+import utils.InputValidator;
 
 /**
  *
@@ -172,33 +173,65 @@ public class AddVideos_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField6ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        int VCD_ID=Integer.parseInt(jTextField1.getText());
-        String title=jTextField2.getText();
-        String Genre=jTextField3.getText();
-        String Rating=jTextField4.getText();
-        String Price=jTextField5.getText();
-        String units=jTextField6.getText();
+        String vcdId = jTextField1.getText().trim();
+        String title = jTextField2.getText().trim();
+        String genre = jTextField3.getText().trim();
+        String rating = jTextField4.getText().trim();
+        String price = jTextField5.getText().trim();
+        String units = jTextField6.getText().trim();
 
-        try{
-            Class.forName("java.sql.DriverManager");
-            Connection con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/palaash","root", "");
-            Statement stmt = (Statement) con.createStatement();
-            String query= "INSERT INTO vcd_record VALUES('"+VCD_ID+"','"+title+"','"+Genre+"','"+Rating+"','"+Price+"','"+units+"');";
-            stmt.executeUpdate(query);
-    JOptionPane.showMessageDialog(this,"VCD Added");
-    jTextField1.setText("");
-    jTextField2.setText("");
-    jTextField3.setText("");
-    jTextField4.setText("");
-    jTextField5.setText("");
-    jTextField6.setText("");
-}
-catch ( Exception e)
-    {
+        // Validate inputs
+        if (!InputValidator.isValidId(vcdId)) {
+            JOptionPane.showMessageDialog(this, "VCD ID must be 4 digits", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!InputValidator.isNotEmpty(title)) {
+            JOptionPane.showMessageDialog(this, "VCD Title is required", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!InputValidator.isNotEmpty(genre)) {
+            JOptionPane.showMessageDialog(this, "VCD Genre is required", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!InputValidator.isPositiveInteger(price)) {
+            JOptionPane.showMessageDialog(this, "Price must be a positive number", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!InputValidator.isPositiveInteger(units)) {
+            JOptionPane.showMessageDialog(this, "Units must be a positive number", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
         
-        JOptionPane.showMessageDialog (this, e.getMessage());
-        
-}
+        try {
+            con = DatabaseConnection.getConnection();
+            String query = "INSERT INTO vcd_record VALUES(?, ?, ?, ?, ?, ?)";
+            pstmt = con.prepareStatement(query);
+            pstmt.setString(1, vcdId);
+            pstmt.setString(2, title);
+            pstmt.setString(3, genre);
+            pstmt.setString(4, rating);
+            pstmt.setInt(5, Integer.parseInt(price));
+            pstmt.setInt(6, Integer.parseInt(units));
+            
+            pstmt.executeUpdate();
+            JOptionPane.showMessageDialog(this, "VCD Added Successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+            // Clear form
+            jTextField1.setText("");
+            jTextField2.setText("");
+            jTextField3.setText("");
+            jTextField4.setText("");
+            jTextField5.setText("");
+            jTextField6.setText("");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error: Failed to add VCD", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt);
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**

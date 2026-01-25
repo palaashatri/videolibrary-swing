@@ -8,6 +8,8 @@ package Forms;
 import java.sql.*;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import utils.DatabaseConnection;
+import utils.InputValidator;
 /**
  *
  * @author Palaash Atri
@@ -142,48 +144,60 @@ public class DeleteTransactions_GUI extends javax.swing.JFrame {
         DefaultListModel dlm;
         dlm = (DefaultListModel)jList1.getModel();
         dlm.clear();
-        try
-        {
-            Class.forName("java.sql.Driver");
-            Connection con=DriverManager.getConnection("jdbc:mysql://localhost/palaash","root","");
-            Statement stmt=con.createStatement();
-            String sql="Select order_id from transactionrcvd;";
-            ResultSet rs=stmt.executeQuery(sql);
-            while(rs.next())
-            {
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            con = DatabaseConnection.getConnection();
+            String sql = "SELECT order_id FROM transactionrcvd";
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            while(rs.next()) {
                 dlm.addElement(rs.getString("order_id"));
             }
-        }
-        catch(Exception e)
-        {
-            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch(SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error while loading transactions: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt, rs);
         }
     }//GEN-LAST:event_jList1FocusGained
 
     private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
-        String SQL = "SELECT * FROM transactionrcvd;";
+        String order_id = (String) jList1.getSelectedValue();
+        
+        if (order_id == null || order_id.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please select a valid transaction.", "Input Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
         try {
-            Class.forName("java.sql.Driver");
-            Connection con = (Connection)
-            DriverManager.getConnection("jdbc:mysql://localhost:3306/palaash","root","");
-            Statement stmt=con.createStatement();
-            String order_id = (String) jList1.getSelectedValue();
-            String SQL1 = "SELECT * FROM transactionrcvd where order_id = '"+(order_id)+"';";
-            ResultSet rs = stmt.executeQuery(SQL1);
+            con = DatabaseConnection.getConnection();
+            String sql = "SELECT * FROM transactionrcvd WHERE order_id = ?";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, order_id);
+            rs = pstmt.executeQuery();
 
-            while (rs.next()) 
-            {
+            if (rs.next()) {
                 jTextField1.setText(rs.getString("vcd_id"));
                 jTextField2.setText(rs.getString("vcd_title"));
                 jTextField3.setText(rs.getString("cust_id"));
                 jTextField4.setText(rs.getString("cust_name"));
                 jTextField6.setText(rs.getString("date_of_issue"));
                 jTextField7.setText(rs.getString("date_of_return"));
+            } else {
+                JOptionPane.showMessageDialog(this, "Transaction not found.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        }
-        catch (Exception e)
-        {
-            JOptionPane.showMessageDialog(this,e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error while loading transaction details: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt, rs);
         }
     }//GEN-LAST:event_jList1MouseClicked
 
@@ -197,26 +211,53 @@ public class DeleteTransactions_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        String SQL = "SELECT * FROM transactionrcvd;";
-        try {
-            Class.forName("java.sql.Driver");
-            Connection con = (Connection)
-            DriverManager.getConnection("jdbc:mysql://localhost:3306/palaash","root","");
-            Statement stmt=con.createStatement();
-            String order_id = (String) jList1.getSelectedValue();
-            String SQL1 = "DELETE FROM transactionrcvd where order_id = '"+(order_id)+"';";
-            int rs = stmt.executeUpdate(SQL1);
-            JOptionPane.showMessageDialog(this,"Record Deleted");
-            jTextField1.setText("");
-                    jTextField2.setText("");
-                    jTextField3.setText("");
-                    jTextField4.setText("");
-                    jTextField6.setText("");
-                    jTextField7.setText("");
+        String order_id = (String) jList1.getSelectedValue();
+        
+        if (order_id == null || order_id.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please select a transaction to delete.", "Input Error", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-            catch (Exception e)
-        {
-            JOptionPane.showMessageDialog(this,e.getMessage());
+        
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Are you sure you want to delete this transaction (Order ID: " + order_id + ")?",
+            "Confirm Delete", 
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+        
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        
+        try {
+            con = DatabaseConnection.getConnection();
+            String sql = "DELETE FROM transactionrcvd WHERE order_id = ?";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, order_id);
+            
+            int rowsDeleted = pstmt.executeUpdate();
+            
+            if (rowsDeleted > 0) {
+                JOptionPane.showMessageDialog(this, "Transaction deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                jTextField1.setText("");
+                jTextField2.setText("");
+                jTextField3.setText("");
+                jTextField4.setText("");
+                jTextField6.setText("");
+                jTextField7.setText("");
+                
+                // Refresh the list
+                DefaultListModel dlm = (DefaultListModel)jList1.getModel();
+                dlm.removeElement(order_id);
+            } else {
+                JOptionPane.showMessageDialog(this, "Transaction not found or already deleted.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error while deleting transaction: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt, null);
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 

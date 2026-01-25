@@ -9,6 +9,7 @@ package Forms;
 import java.sql.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import utils.DatabaseConnection;
 /**
  *
  * @author Palaash Atri
@@ -95,39 +96,37 @@ public class Videos_GUI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        int rows=model.getRowCount();
-        if (rows>0)
-        {
-            for (int i=0; i<rows; i++)
+        int rows = model.getRowCount();
+        if (rows > 0) {
+            for (int i = 0; i < rows; i++)
                 model.removeRow(0); 
+        }
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            con = DatabaseConnection.getConnection();
+            String query = "SELECT * FROM vcd_record";
+            pstmt = con.prepareStatement(query);
+            rs = pstmt.executeQuery();
             
-        }
-        try
-        {
-            Class.forName("java.sql.DriverManager");
-            Connection con = (Connection)DriverManager.getConnection("jdbc:mysql://localhost/palaash","root", "");
-            Statement stmt = (Statement) con.createStatement();
-            String Tname="vcd_record";
-            String query="SELECT * FROM "+Tname+";";
-            ResultSet rs = stmt.executeQuery(query);
-            while(rs.next())
-            {
-                String VCD_ID = rs.getString("vcd_id");
-                String Title = rs.getString("vcd_title");
-                String Genre = rs.getString("vcd_genre");
-                String Rating = rs.getString("vcd_rating");
-                String Price = rs.getString("vcd_price_in_rupees");
-                String Units = rs.getString("NO_OF_UNITS_AVAILABLE");
+            while (rs.next()) {
+                String vcdId = rs.getString("vcd_id");
+                String title = rs.getString("vcd_title");
+                String genre = rs.getString("vcd_genre");
+                String rating = rs.getString("vcd_rating");
+                String price = rs.getString("vcd_price_in_rupees");
+                String units = rs.getString("NO_OF_UNITS_AVAILABLE");
                 
-                
-                
-                model.addRow (new Object[] {VCD_ID, Title,Genre, Rating, Price, Units});
-
-}
-        }
-        catch (Exception e)
-        {
-            JOptionPane.showMessageDialog (this, e.getMessage());
+                model.addRow(new Object[]{vcdId, title, genre, rating, price, units});
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error: Failed to load videos", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt, rs);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

@@ -7,12 +7,11 @@ package Forms;
  */
 
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import utils.DatabaseConnection;
+import utils.InputValidator;
 
 /**
  *
@@ -110,23 +109,25 @@ public class ViewDefaulters_GUI extends javax.swing.JFrame {
 
     private void jTable1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTable1FocusGained
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        int rows=model.getRowCount();
-        if (rows>0)
-        {
-            for (int i=0; i<rows; i++)
+        int rows = model.getRowCount();
+        
+        // Clear existing rows
+        if (rows > 0) {
+            for (int i = 0; i < rows; i++)
                 model.removeRow(0); 
-            
         }
-        try
-        {
-            Class.forName("java.sql.DriverManager");
-            Connection con = (Connection)DriverManager.getConnection("jdbc:mysql://localhost/palaash","root", "");
-            Statement stmt = (Statement) con.createStatement();
-            String Tname="transactionrcvd";
-            String query="SELECT * FROM "+Tname+" where date_returned_on > date_of_return;";
-            ResultSet rs = stmt.executeQuery(query);
-            while(rs.next())
-            {
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            con = DatabaseConnection.getConnection();
+            String sql = "SELECT * FROM transactionrcvd WHERE date_returned_on > date_of_return";
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            while(rs.next()) {
                 String Order_ID = rs.getString("order_id");
                 String vcd_id = rs.getString("vcd_id");
                 String title = rs.getString("vcd_title");
@@ -135,15 +136,13 @@ public class ViewDefaulters_GUI extends javax.swing.JFrame {
                 String issuedate = rs.getString("date_of_issue");
                 String returndate = rs.getString("date_of_return");
                 String datereturnedon = rs.getString("date_returned_on");
-                                  
                 
-                model.addRow (new Object[] {Order_ID, vcd_id,title, custid,custname, issuedate,returndate, datereturnedon});
-
-}
-        }
-        catch (Exception e)
-        {
-            JOptionPane.showMessageDialog (this, e.getMessage());
+                model.addRow(new Object[] {Order_ID, vcd_id, title, custid, custname, issuedate, returndate, datereturnedon});
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error while loading defaulters: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt, rs);
         }
     }//GEN-LAST:event_jTable1FocusGained
 

@@ -8,11 +8,12 @@ package Forms;
 
 
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import utils.DatabaseConnection;
 
 /**
  *
@@ -114,35 +115,35 @@ public class Customers_GUI extends javax.swing.JFrame {
 
     private void jTable1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTable1FocusGained
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        int rows=model.getRowCount();
-        if (rows>0)
-        {
-            for (int i=0; i<rows; i++)
+        int rows = model.getRowCount();
+        if (rows > 0) {
+            for (int i = 0; i < rows; i++)
                 model.removeRow(0); 
-            
         }
-        try
-        {
-            Class.forName("java.sql.DriverManager");
-            Connection con = (Connection)DriverManager.getConnection("jdbc:mysql://localhost/palaash","root", "");
-            Statement stmt = (Statement) con.createStatement();
-            String Tname="customer_record";
-            String query="SELECT * FROM "+Tname+";";
-            ResultSet rs = stmt.executeQuery(query);
-            while(rs.next())
-            {
-                String cust_ID = rs.getString("cust_id");
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            con = DatabaseConnection.getConnection();
+            String query = "SELECT * FROM customer_record";
+            pstmt = con.prepareStatement(query);
+            rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                String custId = rs.getString("cust_id");
                 String name = rs.getString("cust_name");
                 String phone = rs.getString("cust_ph_no");
                 String address = rs.getString("cust_address");             
                 
-                model.addRow (new Object[] {cust_ID, name, phone, address});
-
-}
-        }
-        catch (Exception e)
-        {
-            JOptionPane.showMessageDialog (this, e.getMessage());
+                model.addRow(new Object[]{custId, name, phone, address});
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error: Failed to load customers", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt, rs);
         }
     }//GEN-LAST:event_jTable1FocusGained
 

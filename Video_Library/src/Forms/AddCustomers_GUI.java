@@ -9,6 +9,8 @@ package Forms;
 
 import java.sql.*;
 import javax.swing.*;
+import utils.DatabaseConnection;
+import utils.InputValidator;
 
 /**
  *
@@ -124,29 +126,55 @@ public class AddCustomers_GUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String Customer_ID=jTextField1.getText();
-        String Name=jTextField2.getText();
-        String Phone_No=jTextField3.getText();
-        String Address=jTextArea1.getText();
+        String customerId = jTextField1.getText().trim();
+        String name = jTextField2.getText().trim();
+        String phoneNo = jTextField3.getText().trim();
+        String address = jTextArea1.getText().trim();
 
-        try{
-            Class.forName("java.sql.DriverManager");
-            Connection con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost/palaash","root", "");
-            Statement stmt = (Statement) con.createStatement();
-            String query= "INSERT INTO customer_record VALUES('"+Customer_ID+"','"+Name+"','"+Phone_No+"','"+Address+"');";
-            stmt.executeUpdate(query);
-    JOptionPane.showMessageDialog(this,"Customer Added");
-    jTextField1.setText("");
-    jTextField2.setText("");
-    jTextField3.setText("");
-    jTextArea1.setText("");
-}
-catch ( Exception e)
-    {
+        // Validate inputs
+        if (!InputValidator.isValidId(customerId)) {
+            JOptionPane.showMessageDialog(this, "Customer ID must be 4 digits", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!InputValidator.isNotEmpty(name)) {
+            JOptionPane.showMessageDialog(this, "Customer Name is required", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!InputValidator.isValidPhone(phoneNo)) {
+            JOptionPane.showMessageDialog(this, "Phone number must be 10 digits", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!InputValidator.isNotEmpty(address)) {
+            JOptionPane.showMessageDialog(this, "Address is required", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
         
-        JOptionPane.showMessageDialog (this, e.getMessage());
-        
-}
+        try {
+            con = DatabaseConnection.getConnection();
+            String query = "INSERT INTO customer_record VALUES(?, ?, ?, ?)";
+            pstmt = con.prepareStatement(query);
+            pstmt.setString(1, customerId);
+            pstmt.setString(2, name);
+            pstmt.setString(3, phoneNo);
+            pstmt.setString(4, address);
+            
+            pstmt.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Customer Added Successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+            // Clear form
+            jTextField1.setText("");
+            jTextField2.setText("");
+            jTextField3.setText("");
+            jTextArea1.setText("");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error: Failed to add customer", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt);
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

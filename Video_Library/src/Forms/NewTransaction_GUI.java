@@ -3,6 +3,8 @@ package Forms;
 
 import javax.swing.JOptionPane;
 import java.sql.*;
+import utils.DatabaseConnection;
+import utils.InputValidator;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -296,40 +298,79 @@ public class NewTransaction_GUI extends javax.swing.JFrame {
 
     @SuppressWarnings("empty-statement")
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String order_id=jTextField1.getText();
-        String vcd_id=jTextField2.getText();
-        String vcd_title=jTextField3.getText();
-        String cust_id=jTextField4.getText();
-        String cust_name=jTextField5.getText();
-        String doi_year=jTextField9.getText();
-        String doi_month=jTextField8.getText();
-        String doi_day=jTextField6.getText();
-        String dor_year=jTextField11.getText();
-        String dor_month=jTextField10.getText();
-        String dor_day=jTextField7.getText();
+        String orderId = jTextField1.getText().trim();
+        String vcdId = jTextField2.getText().trim();
+        String vcdTitle = jTextField3.getText().trim();
+        String custId = jTextField4.getText().trim();
+        String custName = jTextField5.getText().trim();
+        String doiYear = jTextField9.getText().trim();
+        String doiMonth = jTextField8.getText().trim();
+        String doiDay = jTextField6.getText().trim();
+        String dorYear = jTextField11.getText().trim();
+        String dorMonth = jTextField10.getText().trim();
+        String dorDay = jTextField7.getText().trim();
         
-        try{
-            Class.forName("java.sql.Driver");
-      Connection con=DriverManager.getConnection("jdbc:mysql://localhost/palaash","root","");
-      Statement stmt=con.createStatement();
-      String sql="insert into transactionrcvd values('"+order_id+"','"+vcd_id+"','"+vcd_title+"','"+cust_id+"','"+cust_name+"','"+doi_year+"''"+doi_month+"''"+doi_day+"','"+dor_year+"''"+dor_month+"''"+dor_day+"',NULL);";
-            int rs=stmt.executeUpdate(sql);
-           JOptionPane.showMessageDialog(this, "TRANSACTION ADDED");
-           jTextField1.setText("");
-           jTextField2.setText("");
-           jTextField3.setText("");
-           jTextField4.setText("");
-           jTextField5.setText("");
-           jTextField6.setText("");
-           jTextField7.setText("");
-           jTextField8.setText("");
-           jTextField9.setText("");
-           jTextField10.setText("");
-           jTextField11.setText("");
+        // Build date strings
+        String dateOfIssue = doiYear + "/" + doiMonth + "/" + doiDay;
+        String dateOfReturn = dorYear + "/" + dorMonth + "/" + dorDay;
+        
+        // Validate inputs
+        if (!InputValidator.isNumeric(orderId)) {
+            JOptionPane.showMessageDialog(this, "Order ID must be numeric", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-        catch (Exception e)
-        {
-            JOptionPane.showMessageDialog(this,e.getMessage());
+        if (!InputValidator.isValidId(vcdId)) {
+            JOptionPane.showMessageDialog(this, "VCD ID must be 4 digits", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!InputValidator.isValidId(custId)) {
+            JOptionPane.showMessageDialog(this, "Customer ID must be 4 digits", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!InputValidator.isValidDate(dateOfIssue)) {
+            JOptionPane.showMessageDialog(this, "Date of Issue must be in YYYY/MM/DD format", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!InputValidator.isValidDate(dateOfReturn)) {
+            JOptionPane.showMessageDialog(this, "Date of Return must be in YYYY/MM/DD format", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        
+        try {
+            con = DatabaseConnection.getConnection();
+            String sql = "INSERT INTO transactionrcvd VALUES(?, ?, ?, ?, ?, ?, ?, NULL)";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, Integer.parseInt(orderId));
+            pstmt.setString(2, vcdId);
+            pstmt.setString(3, vcdTitle);
+            pstmt.setString(4, custId);
+            pstmt.setString(5, custName);
+            pstmt.setString(6, dateOfIssue);
+            pstmt.setString(7, dateOfReturn);
+            
+            pstmt.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Transaction Added Successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+            // Clear form
+            jTextField1.setText("");
+            jTextField2.setText("");
+            jTextField3.setText("");
+            jTextField4.setText("");
+            jTextField5.setText("");
+            jTextField6.setText("");
+            jTextField7.setText("");
+            jTextField8.setText("");
+            jTextField9.setText("");
+            jTextField10.setText("");
+            jTextField11.setText("");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error: Failed to add transaction", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } finally {
+            DatabaseConnection.closeResources(con, pstmt);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

@@ -1,0 +1,3 @@
+# Important: Add this file to .gitignore
+# This file contains sensitive database credentials
+config.properties
