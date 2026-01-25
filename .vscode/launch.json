@@ -8,22 +8,8 @@
             "mainClass": "Forms.Intro_GUI",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
-            "classPaths": [
-                "${workspaceFolder}/target/classes",
-                "${workspaceFolder}/target/dependency/*"
-            ]
-        },
-        {
-            "type": "java",
-            "name": "Debug Video Library",
-            "request": "launch",
-            "mainClass": "Forms.Intro_GUI",
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "classPaths": [
-                "${workspaceFolder}/target/classes",
-                "${workspaceFolder}/target/dependency/*"
-            ]
+            "preLaunchTask": "Docker: Start MySQL",
+            "preLaunchTaskWithWait": false
         },
         {
             "type": "java",
@@ -32,10 +18,16 @@
             "mainClass": "Forms.Main_GUI",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
-            "classPaths": [
-                "${workspaceFolder}/target/classes",
-                "${workspaceFolder}/target/dependency/*"
-            ]
+            "preLaunchTask": "Maven: Prepare Runtime"
+        },
+        {
+            "type": "java",
+            "name": "Run Standalone JAR",
+            "request": "launch",
+            "mainClass": "Forms.Intro_GUI",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "preLaunchTask": "Maven: Package"
         }
     ]
 }

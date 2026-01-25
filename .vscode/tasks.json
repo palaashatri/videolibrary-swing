@@ -2,6 +2,56 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Docker: Start MySQL",
+            "type": "shell",
+            "command": "docker-compose",
+            "args": [
+                "up",
+                "-d"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            },
+            "isBackground": true
+        },
+        {
+            "label": "Docker: Stop MySQL",
+            "type": "shell",
+            "command": "docker-compose",
+            "args": [
+                "down"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Maven: Copy Dependencies (runtime)",
+            "type": "shell",
+            "command": "mvn",
+            "args": [
+                "dependency:copy-dependencies",
+                "-DincludeScope=runtime"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Maven: Prepare Runtime",
+            "type": "shell",
+            "command": "mvn",
+            "args": [
+                "-DskipTests",
+                "compile",
+                "dependency:copy-dependencies",
+                "-DincludeScope=runtime"
+            ],
+            "group": "build",
+            "problemMatcher": "$javac",
+            "dependsOn": [
+                "Maven: Compile",
+                "Maven: Copy Dependencies (runtime)"
+            ]
+        },
+        {
             "label": "Maven: Clean",
             "type": "shell",
             "command": "mvn",
