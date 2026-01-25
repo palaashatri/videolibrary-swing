@@ -27,7 +27,8 @@ nbdist/
 *.iml
 *.iws
 *.ipr
-.vscode/
+# Keep .vscode for project configuration
+# .vscode/
 
 # OS
 .DS_Store

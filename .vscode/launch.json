@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch Video Library",
+            "request": "launch",
+            "mainClass": "Forms.Intro_GUI",
+            "projectName": "videolibrary-swing",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "args": "",
+            "vmArgs": ""
+        },
+        {
+            "type": "java",
+            "name": "Debug Video Library",
+            "request": "launch",
+            "mainClass": "Forms.Intro_GUI",
+            "projectName": "videolibrary-swing",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "args": "",
+            "vmArgs": "-Xdebug"
+        },
+        {
+            "type": "java",
+            "name": "Launch Main Menu (Direct)",
+            "request": "launch",
+            "mainClass": "Forms.Main_GUI",
+            "projectName": "videolibrary-swing",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        }
+    ]
+}
