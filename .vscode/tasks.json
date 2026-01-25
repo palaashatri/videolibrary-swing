@@ -97,11 +97,20 @@
         },
         {
             "label": "Prepare + Seed Database",
+            "dependsOn": [
+                "Maven: Prepare Runtime",
+                "Docker: Start + Wait",
+                "Database: Seed (1M entries)"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Docker: Start + Wait",
             "type": "shell",
-            "command": "sh",
+            "command": "docker-compose",
             "args": [
-                "-c",
-                "mvn -DskipTests compile dependency:copy-dependencies -DincludeScope=runtime && docker-compose up -d && sleep 3 && bash seed.sh"
+                "up",
+                "-d"
             ],
             "problemMatcher": [],
             "presentation": {
