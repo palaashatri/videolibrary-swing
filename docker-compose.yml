@@ -14,7 +14,6 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./Database.txt:/docker-entrypoint-initdb.d/01-schema.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pvideolibrary123"]
       interval: 10s
@@ -23,10 +22,60 @@ services:
     networks:
       - videolibrary-network
 
+  mariadb:
+    image: mariadb:latest
+    container_name: videolibrary-mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: videolibrary123
+      MARIADB_DATABASE: palaash
+      MARIADB_USER: videolibrary
+      MARIADB_PASSWORD: videolibrary123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pvideolibrary123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - videolibrary-network
+    profiles:
+      - mariadb
+
+  postgresql:
+    image: postgres:16
+    container_name: videolibrary-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: palaash
+      POSTGRES_USER: videolibrary
+      POSTGRES_PASSWORD: videolibrary123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U videolibrary"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - videolibrary-network
+    profiles:
+      - postgresql
+
 volumes:
   mysql_data:
+    driver: local
+  mariadb_data:
+    driver: local
+  postgresql_data:
     driver: local
 
 networks:
   videolibrary-network:
     driver: bridge
+
