@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: videolibrary-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: videolibrary123
+      MYSQL_DATABASE: palaash
+      MYSQL_USER: videolibrary
+      MYSQL_PASSWORD: videolibrary123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./Database.txt:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pvideolibrary123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - videolibrary-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  videolibrary-network:
+    driver: bridge
